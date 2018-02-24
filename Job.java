@@ -7,7 +7,7 @@ public class Job {
     Job(int s, int f, int v) {
         startTime = s;
         finishTime = f;
-        value = f;
+        value = v;
     }
 
 }
