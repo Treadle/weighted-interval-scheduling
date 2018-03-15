@@ -1,53 +1,13 @@
 import java.util.*;
 
 public class WeightedIntervalScheduler {
-    public List<Job> jobSetOriginal;
+    public List<Job> jobSet;
     public List<Job> jobSetSorted;
     public List<Job> solutionSet;
-    int[] M;
+    private int[] M;
 
     WeightedIntervalScheduler(List<Job> jobs) {
-        jobSetOriginal = jobs;
-        jobSetSorted = jobs;
-        solutionSet = new ArrayList<>();
-        M = new int[jobs.size()];
-    }
-
-    //Recursive, top-down solution
-    public int computeOpt(int j) {
-        if (j == 0) {
-            return 0;
-        } else {
-            return Math.max(jobSetSorted.get(j).value + computeOpt(p(j)), computeOpt(j - 1));
-        }
-    }
-
-    //Iterative, bottom-up, dynamic programming solution
-    public int iterativeComputeOpt() {
-        M[0] = 0;
-        for (int i = 1; i < M.length; i++) {
-            M[i] = Math.max(jobSetSorted.get(i).value + M[p(i)], M[i-1]);
-        }
-        return M[M.length-1];
-    }
-
-    public int findSolutionSet(int j) {
-        if (j != 0) {
-            Job job = jobSetSorted.get(j);
-            if (job.value + M[p(j)] > M[j - 1]) {
-                solutionSet.add(job);
-                return findSolutionSet(p(j));
-            } else {
-                return findSolutionSet(j-1);
-            }
-        } else {
-            return 0;
-        }
-
-    }
-
-    public void sortJobs() {
-        Collections.sort(jobSetSorted, new Comparator<Job>() {
+        Collections.sort(jobs, new Comparator<Job>() {
             public int compare(Job j1, Job j2) {
                 if (j1.finishTime == j2.finishTime) {
                     return 0;
@@ -55,6 +15,31 @@ public class WeightedIntervalScheduler {
                 return j1.finishTime < j2.finishTime ? -1 : 1;
             }
         });
+
+        jobSetSorted = jobs;
+        jobSetSorted.add(0,null);
+        solutionSet = new ArrayList<>();
+        M = new int[jobSetSorted.size()];
+        
+    }
+
+    public int iterative() {
+        M[0] = 0;
+        for (int i = 1; i < M.length; i++) {
+            M[i] = Math.max(jobSetSorted.get(i).value + M[p(i)], M[i-1]);
+        }
+        return M[jobSetSorted.size()-1];
+    }
+
+    public int findSolutionSet(int j) {
+        if (j == 0) {
+            return 0;
+        } else if (jobSetSorted.get(j).value + M[p(j)] > M[j-1]) {
+            solutionSet.add(jobSetSorted.get(j));
+            return findSolutionSet(p(j));
+        } else {
+            return findSolutionSet(j-1);
+        }
     }
 
     private int p(int i) {
@@ -63,8 +48,10 @@ public class WeightedIntervalScheduler {
         Job earlierJob = job;
 
         for (Job j : jobSetSorted) {
-            if (j.finishTime <= laterStartTime) {
-                earlierJob = j;
+            if (j != null) {
+                if (j.finishTime <= laterStartTime) {
+                    earlierJob = j;
+                }
             }
         }
 

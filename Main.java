@@ -5,10 +5,10 @@ import javafx.beans.binding.SetExpression;
 
 public class Main {
 
-    static int maxJobLength = 20;
-    static int maxValue = 20;
+    static int maxJobLength = 40;
+    static int maxValue = 50;
     static int numJobs = 20;
-    static int latestStartTime = 20;
+    static int latestStartTime = 40;
     static Random rand = new Random();
     static List<Job> jobSet; 
 
@@ -21,11 +21,16 @@ public class Main {
         WeightedIntervalScheduler weightedIntervalScheduler = new WeightedIntervalScheduler(jobSet);
         weightedIntervalScheduler.sortJobs();
 
-        int solution = weightedIntervalScheduler.iterativeComputeOpt();
-        weightedIntervalScheduler.findSolutionSet(19);
+        System.out.println("SORTED JOB SET");
+        displayJobSet(weightedIntervalScheduler.jobSetSorted);
 
-        System.out.println("SOLUTION JOB SET (value = " + solution + ")");
+        int solution = weightedIntervalScheduler.iterative();
+
+        weightedIntervalScheduler.findSolutionSet(numJobs);
+
+        System.out.println("SOLUTION JOB SET (value = " + solution +")");
         displayJobSet(weightedIntervalScheduler.solutionSet);
+        
     }
 
     private static List<Job> generateJobSet() {
@@ -43,16 +48,17 @@ public class Main {
 
     private static void displayJobSet(List<Job> set) {
         for (Job j : set) {
-            System.out.println(displayJob(j));
+            if (j != null) {
+                System.out.println(displayJob(j));
+            }
         }
-
     }
 
     private static String displayJob(Job j) {
         String leadingSpaces = new String(new char[j.startTime]).replace("\0", " ");
         String trailingSpaces = new String(new char[(maxJobLength + latestStartTime) - j.finishTime]).replace("\0", " ");
         String dashes = new String(new char[j.finishTime - j.startTime]).replace("\0", "-");
-        return leadingSpaces + dashes + j.value + trailingSpaces;
+        return leadingSpaces + dashes + "(" + j.value + ")" + trailingSpaces;
 
     }
 }
